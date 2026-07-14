@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaptionAI - Social Media Caption Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>CaptionAI</h1>
+        <p class="subtitle">AI-Powered Social Media Caption, Hashtag & CTA Generator</p>
+
+        <div class="card">
+            <div class="form-group">
+                <label for="description">Describe your post/product:</label>
+                <textarea id="description" placeholder="e.g., A new summer collection of sustainable sunglasses..."></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="platform">Target Platform:</label>
+                    <select id="platform">
+                        <option value="Instagram">Instagram</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="X/Twitter">X / Twitter</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="tone">Tone of Voice:</label>
+                    <select id="tone">
+                        <option value="Casual">Casual</option>
+                        <option value="Professional">Professional</option>
+                        <option value="Promotional">Promotional</option>
+                        <option value="Humorous">Humorous</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="generateBtn" onclick="generateContent()">Generate Content</button>
+        </div>
+
+        <div id="loading" class="hidden">Generating your creative assets...</div>
+
+        <div id="resultCard" class="card hidden">
+            <h2>Your Results</h2>
+            <pre id="outputContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function generateContent() {
+            const description = document.getElementById('description').value;
+            const platform = document.getElementById('platform').value;
+            const tone = document.getElementById('tone').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const loading = document.getElementById('loading');
+            const resultCard = document.getElementById('resultCard');
+            const outputContent = document.getElementById('outputContent');
+
+            if (!description.trim()) {
+                alert("Please describe your post/product first!");
+                return;
+            }
+
+            generateBtn.disabled = true;
+            loading.classList.remove('hidden');
+            resultCard.classList.add('hidden');
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description, platform, tone })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    outputContent.textContent = data.result;
+                    resultCard.classList.remove('hidden');
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                alert("Network error occurred.");
+                console.error(error);
+            } finally {
+                generateBtn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
